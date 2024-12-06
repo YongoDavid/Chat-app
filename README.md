@@ -1,5 +1,3 @@
-# CloneUrbanOutfitters
-
 Urban Outfitters is a lifestyle related retailer which specializes in selling apparel, clothing accessories and apartment products. It primarily targets teens and young adults who are interested in hipster subculture and alternative fashion..
 <a href="https://clone-urban-outfitters.vercel.app/" target="_blank">Click here for Live demo</a>
 
@@ -42,3 +40,4 @@ Single-user as well as group chat can be done by the user</li>
 ![ChatApp](/src/img1.png)
 ![ChatApp](/src/img2.png)
 
+I STILL NEED TO FIGURE OUT THE MONGODB issue
