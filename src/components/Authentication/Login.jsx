@@ -1,42 +1,53 @@
-import { Button } from "@chakra-ui/button";
-import { FormControl, FormLabel } from "@chakra-ui/form-control";
-import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
-import { VStack } from "@chakra-ui/layout";
+import {
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  InputGroup,
+  InputRightElement,
+  VStack,
+  Text,
+  Divider,
+  HStack,
+  useColorModeValue,
+  Icon,
+} from "@chakra-ui/react";
 import { useState } from "react";
+import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 export const Login = () => {
   const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
-  const toast = useToast();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
+  
+  const toast = useToast();
   const navigate = useNavigate();
+  const buttonBg = useColorModeValue("blue.500", "blue.400");
+  const buttonHoverBg = useColorModeValue("blue.600", "blue.500");
 
   const submitHandler = async () => {
     setLoading(true);
     if (!email || !password) {
       toast({
-        title: "Please Fill all the Feilds",
+        title: "Please fill all fields",
         status: "warning",
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: "top",
       });
       setLoading(false);
       return;
     }
 
-    // console.log(email, password);
     try {
       const config = {
         headers: {
           "Content-type": "application/json",
-          "Access-Control-Allow-Origin": "*"
+          "Access-Control-Allow-Origin": "*",
         },
       };
 
@@ -46,13 +57,12 @@ export const Login = () => {
         config
       );
 
-      // console.log(JSON.stringify(data));
       toast({
         title: "Login Successful",
         status: "success",
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: "top",
       });
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
@@ -60,63 +70,93 @@ export const Login = () => {
       navigate("/chats");
     } catch (error) {
       toast({
-        title: "Error Occured!",
-        description: error.response.data.message,
+        title: "Error Occurred!",
+        description: error.response?.data?.message || "An error occurred",
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "bottom",
+        position: "top",
       });
       setLoading(false);
     }
   };
 
   return (
-    <VStack spacing="10px">
-      <FormControl id="email" isRequired>
+    <VStack spacing={6} w="full">
+      <Button
+        w="full"
+        h="12"
+        variant="outline"
+        leftIcon={<Icon as={FaGoogle} />}
+        onClick={() => {}}
+        _hover={{ bg: "gray.50" }}
+      >
+        Continue with Google
+      </Button>
+
+      <HStack w="full">
+        <Divider />
+        <Text fontSize="sm" color="gray.500" px={4}>
+          OR
+        </Text>
+        <Divider />
+      </HStack>
+
+      <FormControl>
         <FormLabel>Email Address</FormLabel>
         <Input
+          size="lg"
           value={email}
           type="email"
-          placeholder="Enter Your Email Address"
+          placeholder="Enter your email"
           onChange={(e) => setEmail(e.target.value)}
         />
       </FormControl>
-      <FormControl id="password" isRequired>
+
+      <FormControl>
         <FormLabel>Password</FormLabel>
-        <InputGroup size="md">
+        <InputGroup size="lg">
           <Input
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
             type={show ? "text" : "password"}
             placeholder="Enter password"
+            onChange={(e) => setPassword(e.target.value)}
           />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size="sm" onClick={handleClick}>
-              {show ? "Hide" : "Show"}
+          <InputRightElement width="3rem">
+            <Button
+              h="1.75rem"
+              size="sm"
+              onClick={() => setShow(!show)}
+              variant="ghost"
+            >
+              <Icon as={show ? FaEyeSlash : FaEye} />
             </Button>
           </InputRightElement>
         </InputGroup>
       </FormControl>
+
       <Button
-        colorScheme="blue"
-        width="100%"
-        style={{ marginTop: 15 }}
+        w="full"
+        h="12"
+        bg={buttonBg}
+        color="white"
+        _hover={{ bg: buttonHoverBg }}
         onClick={submitHandler}
         isLoading={loading}
       >
         Login
       </Button>
+
       <Button
-        variant="solid"
-        colorScheme="red"
-        width="100%"
+        w="full"
+        h="12"
+        variant="outline"
         onClick={() => {
           setEmail("guest@example.com");
           setPassword("123456");
         }}
       >
-        Guest User Credentials
+        Use Guest Credentials
       </Button>
     </VStack>
   );

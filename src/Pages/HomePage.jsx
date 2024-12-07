@@ -1,16 +1,16 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import {
-  Container,
   Box,
-  Text,
-  Tabs,
-  TabList,
-  TabPanels,
   Tab,
+  TabList,
   TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
 } from "@chakra-ui/react";
 import { Login } from "../components/Authentication/Login";
 import { Signup } from "../components/Authentication/Signup";
+import { AuthLayout } from "../components/Authentication/AuthLayout";
 import { useNavigate } from "react-router-dom";
 
 export const HomePage = () => {
@@ -18,41 +18,44 @@ export const HomePage = () => {
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
     if (userInfo) {
       navigate("/chats");
     }
   }, [navigate]);
 
   return (
-    <Container maxW="xl" centerContent>
-      <Box
-        display="flex"
-        justify="center"
-        p={3}
-        bg={"white"}
-        w="100%"
-        m="40px 0 15px 0"
-        borderRadius="lg"
-        borderWidth="1px"
-        color="black"
-      >
-        <Text fontSize="4xl" fontFamily="Work sans" color="black">
-          Chat App
-        </Text>
-      </Box>
-      <Box bg="white" w="100%" p={4} borderRadius="lg" borderWidth="1px">
-        <Tabs variant="soft-rounded" colorScheme="green">
-          <TabList mb="1em">
-            <Tab w="50%">Login</Tab>
-            <Tab w="50%">Sign up</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>{<Login />}</TabPanel>
-            <TabPanel>{<Signup />}</TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
-    </Container>
+    <AuthLayout>
+      <Tabs isFitted variant="unstyled">
+        <TabList mb={8}>
+          <Tab
+            _selected={{
+              color: "blue.500",
+              borderBottom: "2px solid",
+              fontWeight: "semibold",
+            }}
+          >
+            Login
+          </Tab>
+          <Tab
+            _selected={{
+              color: "blue.500",
+              borderBottom: "2px solid",
+              fontWeight: "semibold",
+            }}
+          >
+            Sign Up
+          </Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel px={0}>
+            <Login />
+          </TabPanel>
+          <TabPanel px={0}>
+            <Signup />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </AuthLayout>
   );
 };
+
