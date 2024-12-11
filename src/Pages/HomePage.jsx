@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 import {
-  Box,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
-  Text,
 } from "@chakra-ui/react";
 import { Login } from "../components/Authentication/Login";
 import { Signup } from "../components/Authentication/Signup";
