@@ -41,3 +41,4 @@ Single-user as well as group chat can be done by the user</li>
 
 Login , Signup and Homepage desgin update
 <!-- i will be down grading my node.js in other to run old version dependencies  -->
+Made some adjustmets to chakra UI 
