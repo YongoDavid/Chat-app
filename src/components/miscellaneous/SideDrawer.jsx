@@ -1,5 +1,6 @@
 import { Button , Input , Box, Text } from "@chakra-ui/react";
 import { useDisclosure } from '@chakra-ui/react'
+import { UserSearch } from 'lucide-react';
 import {
   Menu,
   MenuButton,
@@ -13,6 +14,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Flex
 } from "@chakra-ui/react";
 import { Tooltip , Avatar , useToast , Spinner} from "@chakra-ui/react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
@@ -140,9 +142,12 @@ console.log(data);
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
           <Button variant="ghost" onClick={onOpen}>
             <i className="fas fa-search"></i>
-            <Text display={{ base: "none", md: "flex" }} px={4}>
-              Search User
-            </Text>
+            <Flex direction="row">
+              <UserSearch />
+              {/* <Text display={{ base: "none", md: "flex" }} px={4}>
+                Search User
+              </Text> */}
+            </Flex>
           </Button>
         </Tooltip>
         <Text fontSize="2xl" fontFamily="Work sans">

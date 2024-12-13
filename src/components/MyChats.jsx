@@ -139,7 +139,7 @@ export const MyChats = ({ fetchAgain }) => {
                 cursor="pointer"
                 bg={selectedChat === chat ? selectedBgColor : bgColor}
                 color={selectedChat === chat ? "white" : textColor}
-                px={2}
+                px={4}
                 py={4}
                 borderRadius="lg"
                 transition="all 0.3s"
