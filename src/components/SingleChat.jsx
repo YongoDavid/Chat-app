@@ -201,6 +201,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </>
               ))}
           </Text>
+          {/* CHAT BOX AREA  */}
           <Box
             display="flex"
             flexDir="column"
