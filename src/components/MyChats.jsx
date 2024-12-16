@@ -1,41 +1,26 @@
-import { AddIcon } from "@chakra-ui/icons";
-import {
-  Box,
-  Button,
-  Flex,
-  Stack,
-  Text,
-  Skeleton,
-  useToast,
-  useColorModeValue,
-  VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Stack, Text, Skeleton, useToast, useColorModeValue, VStack, Avatar, HStack } from "@chakra-ui/react";
+import { UserRoundPlus, CheckCheck, ChevronRight } from 'lucide-react';
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { getSender } from "../config/ChatLogics";
-import {ChatLoading} from "./ChatLoading";
-import {GroupChatModal} from "./miscellaneous/GroupChatModal";
+import { GroupChatModal } from "./miscellaneous/GroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import { motion } from "framer-motion";
-
-
 
 export const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
   const [searchTerm, setSearchTerm] = useState("");
-
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
-
   const toast = useToast();
 
   const bgColor = useColorModeValue("white", "gray.800");
-  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
-  const selectedBgColor = useColorModeValue("blue.500", "blue.600");
+  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
+  const selectedBgColor = useColorModeValue("blue.50", "blue.900");
   const textColor = useColorModeValue("gray.800", "white");
-  const mutedTextColor = useColorModeValue("gray.600", "gray.400");
+  const mutedTextColor = useColorModeValue("gray.500", "gray.400");
+  const dateColor = useColorModeValue("gray.500", "gray.500");
 
   const fetchChats = async () => {
-    // console.log(user._id);
     try {
       const config = {
         headers: {
@@ -51,7 +36,7 @@ export const MyChats = ({ fetchAgain }) => {
       setChats(data);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the chats",
         status: "error",
         duration: 5000,
@@ -64,7 +49,6 @@ export const MyChats = ({ fetchAgain }) => {
   useEffect(() => {
     setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
     fetchChats();
-    // eslint-disable-next-line
   }, [fetchAgain]);
 
   const filteredChats = chats?.filter((chat) =>
@@ -75,6 +59,15 @@ export const MyChats = ({ fetchAgain }) => {
           .includes(searchTerm.toLowerCase())
   );
 
+  const formatDate = (date) => {
+    const messageDate = new Date(date);
+    const today = new Date();
+    
+    if (messageDate.toDateString() === today.toDateString()) {
+      return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    return messageDate.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: '2-digit' });
+  };
 
   return (
     <Box
@@ -99,17 +92,17 @@ export const MyChats = ({ fetchAgain }) => {
         <Text fontWeight="bold">Chats</Text>
         <GroupChatModal>
           <Button
-            d="flex"
-            fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-            rightIcon={<AddIcon />}
-            colorScheme="blue"
+            variant="ghost"
+            size="sm"
+            p={2}
+            _hover={{ bg: 'gray.100' }}
           >
-            Group Chat
+            <UserRoundPlus size={24} />
           </Button>
         </GroupChatModal>
       </Flex>
       <VStack
-        spacing={2}
+        spacing={0}
         align="stretch"
         w="100%"
         h="calc(100% - 140px)"
@@ -131,45 +124,60 @@ export const MyChats = ({ fetchAgain }) => {
           filteredChats.map((chat) => (
             <motion.div
               key={chat._id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
             >
               <Box
                 onClick={() => setSelectedChat(chat)}
                 cursor="pointer"
                 bg={selectedChat === chat ? selectedBgColor : bgColor}
-                color={selectedChat === chat ? "white" : textColor}
+                color={textColor}
                 px={4}
-                py={4}
-                borderRadius="lg"
-                transition="all 0.3s"
+                py={3}
+                borderBottom="1px"
+                borderColor="gray.100"
+                transition="all 0.2s"
                 _hover={{
                   bg: selectedChat === chat ? selectedBgColor : hoverBgColor,
                 }}
-                boxShadow={selectedChat === chat ? "md" : "none"}
               >
-                <Text fontWeight="bold">
-                  {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
-                {chat.latestMessage && (
-                  <Text fontSize="xs" color={mutedTextColor}>
-                    <Text as="span" fontWeight="bold">
-                      {chat.latestMessage.sender.name}:{" "}
-                    </Text>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 51) + "..."
-                      : chat.latestMessage.content}
-                  </Text>
-                )}
+                <HStack spacing={3} align="start">
+                  <Avatar 
+                    size="md" 
+                    name={!chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
+                    src={chat.isGroupChat ? null : chat.users.find(u => u._id !== loggedUser?._id)?.pic}
+                  />
+                  <Box flex="1">
+                    <Flex justify="space-between" align="center" mb={1}>
+                      <Text fontWeight="bold" fontSize="md">
+                        {!chat.isGroupChat
+                          ? getSender(loggedUser, chat.users)
+                          : chat.chatName}
+                      </Text>
+                      <Text fontSize="xs" color={dateColor}>
+                        {chat.latestMessage ? formatDate(chat.latestMessage.createdAt) : ''}
+                      </Text>
+                    </Flex>
+                    {chat.latestMessage && (
+                      <HStack spacing={1} align="center">
+                        <CheckCheck size={16} color="#63B3ED" />
+                        <Text fontSize="sm" color={mutedTextColor} noOfLines={1}>
+                          {chat.latestMessage.content}
+                        </Text>
+                      </HStack>
+                    )}
+                  </Box>
+                  <ChevronRight size={18} color="#CBD5E0" />
+                </HStack>
               </Box>
             </motion.div>
           ))
         ) : (
-          <Stack>
+          <Stack spacing={4} p={4}>
             {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} height="60px" />
+              <Skeleton key={i} height="70px" borderRadius="lg" />
             ))}
           </Stack>
         )}
@@ -177,3 +185,4 @@ export const MyChats = ({ fetchAgain }) => {
     </Box>
   );
 };
+
