@@ -10,10 +10,12 @@ import {
   Divider,
   HStack,
   useColorModeValue,
-  Icon,
+  Box,
+  Heading,
+  Link,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
@@ -82,83 +84,107 @@ export const Login = () => {
   };
 
   return (
-    <VStack spacing={6} w="full">
-      <Button
-        w="full"
-        h="12"
-        variant="outline"
-        leftIcon={<Icon as={FaGoogle} />}
-        onClick={() => {}}
-        _hover={{ bg: "gray.50" }}
-      >
-        Continue with Google
-      </Button>
-
-      <HStack w="full">
-        <Divider />
-        <Text fontSize="sm" color="gray.500" px={4}>
-          OR
+    <Box w="full" maxW="400px" mx="auto" px={4}>
+      <VStack spacing={6} w="full" mt={8}>
+        <Heading as="h1" size="xl" textAlign="center" mb={2}>
+          Welcome Back
+        </Heading>
+        <Text fontSize="md" color="gray.600" textAlign="center" mb={4}>
+          Sign in to continue to Chat App
         </Text>
-        <Divider />
-      </HStack>
 
-      <FormControl>
-        <FormLabel>Email Address</FormLabel>
-        <Input
-          size="lg"
-          value={email}
-          type="email"
-          placeholder="Enter your email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </FormControl>
+        <Button
+          w="full"
+          h="12"
+          variant="outline"
+          leftIcon={<Mail size={18} />}
+          onClick={() => {}}
+          _hover={{ bg: "gray.50" }}
+        >
+          Continue with Google
+        </Button>
 
-      <FormControl>
-        <FormLabel>Password</FormLabel>
-        <InputGroup size="lg">
-          <Input
-            value={password}
-            type={show ? "text" : "password"}
-            placeholder="Enter password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <InputRightElement width="3rem">
-            <Button
-              h="1.75rem"
-              size="sm"
-              onClick={() => setShow(!show)}
-              variant="ghost"
-            >
-              <Icon as={show ? FaEyeSlash : FaEye} />
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
+        <HStack w="full">
+          <Divider />
+          <Text fontSize="sm" color="gray.500" px={4}>
+            OR
+          </Text>
+          <Divider />
+        </HStack>
 
-      <Button
-        w="full"
-        h="12"
-        bg={buttonBg}
-        color="white"
-        _hover={{ bg: buttonHoverBg }}
-        onClick={submitHandler}
-        isLoading={loading}
-      >
-        Login
-      </Button>
+        <FormControl>
+          <FormLabel>Email Address</FormLabel>
+          <InputGroup>
+            <Input
+              size="lg"
+              value={email}
+              type="email"
+              placeholder="Enter your email"
+              onChange={(e) => setEmail(e.target.value)}
+              pr="4.5rem"
+            />
+            <InputRightElement width="4.5rem" h="100%">
+              <Mail color="gray.300" />
+            </InputRightElement>
+          </InputGroup>
+        </FormControl>
 
-      <Button
-        w="full"
-        h="12"
-        variant="outline"
-        onClick={() => {
-          setEmail("guest@example.com");
-          setPassword("123456");
-        }}
-      >
-        Use Guest Credentials
-      </Button>
-    </VStack>
+        <FormControl>
+          <FormLabel>Password</FormLabel>
+          <InputGroup size="lg">
+            <Input
+              value={password}
+              type={show ? "text" : "password"}
+              placeholder="Enter password"
+              onChange={(e) => setPassword(e.target.value)}
+              pr="4.5rem"
+            />
+            <InputRightElement width="4.5rem" h="100%">
+              <Button
+                h="1.75rem"
+                size="sm"
+                onClick={() => setShow(!show)}
+                variant="ghost"
+              >
+                {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </FormControl>
+
+        <Button
+          w="full"
+          h="12"
+          bg={buttonBg}
+          color="white"
+          _hover={{ bg: buttonHoverBg }}
+          onClick={submitHandler}
+          isLoading={loading}
+          leftIcon={<LogIn size={18} />}
+        >
+          Login
+        </Button>
+
+        <Button
+          w="full"
+          h="12"
+          variant="outline"
+          onClick={() => {
+            setEmail("guest@example.com");
+            setPassword("123456");
+          }}
+        >
+          Use Guest Credentials
+        </Button>
+
+        <Text fontSize="sm" textAlign="center">
+          Don't have an account?{" "}
+          <Link color={buttonBg} fontWeight="medium" href="/signup">
+            Sign up
+          </Link>
+        </Text>
+      </VStack>
+    </Box>
   );
 };
 

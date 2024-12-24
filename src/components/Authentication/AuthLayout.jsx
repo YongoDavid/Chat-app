@@ -1,10 +1,19 @@
-import { Box, Container, Flex, useColorModeValue } from "@chakra-ui/react";
+import { Box, Container, Flex, useColorModeValue, useBreakpointValue } from "@chakra-ui/react";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
+  const showFullLayout = useBreakpointValue({ base: false, md: true });
+  const bgColor = useColorModeValue("blue.500", "blue.600");
+  const contentBgColor = useColorModeValue("white", "gray.800");
+
+  if (!showFullLayout) {
+    // On mobile, we'll just render the children without the layout
+    return <Box p={4}>{children}</Box>;
+  }
+
   return (
     <Container maxW="7xl" p={{ base: 4, md: 8 }}>
       <Flex minH="100vh" align="center" justify="center">
@@ -20,7 +29,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           {/* Brand Section */}
           <Box
             w={{ base: "full", md: "40%" }}
-            bg={useColorModeValue("blue.500", "blue.600")}
+            bg={bgColor}
             color="white"
             p={8}
             display="flex"
@@ -48,7 +57,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           {/* Auth Content */}
           <Box
             w={{ base: "full", md: "60%" }}
-            bg={useColorModeValue("white", "gray.800")}
+            bg={contentBgColor}
             p={{ base: 8, md: 12 }}
           >
             {children}

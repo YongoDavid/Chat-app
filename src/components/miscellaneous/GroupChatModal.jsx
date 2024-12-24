@@ -12,16 +12,25 @@ import {
   Input,
   useToast,
   Box,
+  Text,
+  VStack,
+  HStack,
+  Avatar,
+  Wrap,
+  WrapItem,
+  InputGroup,
+  InputLeftElement,
+  Divider,
 } from "@chakra-ui/react";
+import { Search, Users, X } from 'lucide-react';
 import axios from "axios";
 import { useState } from "react";
 import { ChatState } from "../../Context/ChatProvider";
-import { UserBadgeItem } from "../UserAvatar/UserBadgeItem";
-import { UserListItem } from "../UserAvatar/UserListItem";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [groupChatName, setGroupChatName] = useState();
+  const [groupChatName, setGroupChatName] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -35,7 +44,7 @@ export const GroupChatModal = ({ children }) => {
       toast({
         title: "User already added",
         status: "warning",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
         position: "top",
       });
@@ -48,6 +57,7 @@ export const GroupChatModal = ({ children }) => {
   const handleSearch = async (query) => {
     setSearch(query);
     if (!query) {
+      setSearchResult([]);
       return;
     }
 
@@ -63,18 +73,18 @@ export const GroupChatModal = ({ children }) => {
         `https://vikash-chat-app.onrender.com/api/user?search=${search}`,
         config
       );
-      console.log(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Search Results",
         status: "error",
         duration: 5000,
         isClosable: true,
         position: "bottom-left",
       });
+      setLoading(false);
     }
   };
 
@@ -83,9 +93,10 @@ export const GroupChatModal = ({ children }) => {
   };
 
   const handleSubmit = async () => {
-    if (!groupChatName || !selectedUsers) {
+    if (!groupChatName || selectedUsers.length < 2) {
       toast({
-        title: "Please fill all the feilds",
+        title: "Please fill all the fields",
+        description: "Group name and at least 2 users are required",
         status: "warning",
         duration: 5000,
         isClosable: true,
@@ -134,60 +145,129 @@ export const GroupChatModal = ({ children }) => {
     <>
       <span onClick={onOpen}>{children}</span>
 
-      <Modal onClose={onClose} isOpen={isOpen} isCentered>
-        <ModalOverlay />
-        <ModalContent>
+      <Modal onClose={onClose} isOpen={isOpen} isCentered size="md">
+        <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
+        <ModalContent borderRadius="xl" bg="white">
           <ModalHeader
-            fontSize="35px"
-            fontFamily="Work sans"
-            display="flex"
-            justifyContent="center"
+            fontSize="2xl"
+            fontWeight="bold"
+            textAlign="center"
+            pb={2}
           >
             Create Group Chat
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody display="flex" flexDir="column" alignItems="center">
-            <FormControl>
-              <Input
-                placeholder="Chat Name"
-                mb={3}
-                onChange={(e) => setGroupChatName(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <Input
-                placeholder="Add Users eg: John, David, Jame"
-                mb={1}
-                onChange={(e) => handleSearch(e.target.value)}
-              />
-            </FormControl>
-            <Box w="100%" display="flex" flexWrap="wrap">
-              {selectedUsers.map((u) => (
-                <UserBadgeItem
-                  key={u._id}
-                  user={u}
-                  handleFunction={() => handleDelete(u)}
+          <Divider />
+          <ModalBody>
+            <VStack spacing={4} align="stretch">
+              <FormControl>
+                <Input
+                  placeholder="Group Chat Name"
+                  value={groupChatName}
+                  onChange={(e) => setGroupChatName(e.target.value)}
+                  size="lg"
+                  borderRadius="md"
                 />
-              ))}
-            </Box>
-            {loading ? (
-              // <ChatLoading />
-              <div>Loading...</div>
-            ) : (
-              searchResult
-                ?.slice(0, 4)
-                .map((user) => (
-                  <UserListItem
-                    key={user._id}
-                    user={user}
-                    handleFunction={() => handleGroup(user)}
+              </FormControl>
+              <FormControl>
+                <InputGroup>
+                  <InputLeftElement pointerEvents="none">
+                    <Search size={20} color="gray" />
+                  </InputLeftElement>
+                  <Input
+                    placeholder="Search users to add"
+                    onChange={(e) => handleSearch(e.target.value)}
+                    size="lg"
+                    borderRadius="md"
                   />
-                ))
-            )}
+                </InputGroup>
+              </FormControl>
+
+              <Box>
+                <Text fontWeight="semibold" mb={2}>
+                  Selected Users:
+                </Text>
+                <Wrap spacing={2}>
+                  <AnimatePresence>
+                    {selectedUsers.map((u) => (
+                      <motion.div
+                        key={u._id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <WrapItem>
+                          <HStack
+                            bg="blue.100"
+                            color="blue.800"
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            spacing={2}
+                          >
+                            <Avatar
+                              size="xs"
+                              name={u.name}
+                              src={u.pic}
+                            />
+                            <Text fontSize="sm">{u.name}</Text>
+                            <Box
+                              as="button"
+                              onClick={() => handleDelete(u)}
+                              _hover={{ color: "red.500" }}
+                            >
+                              <X size={16} />
+                            </Box>
+                          </HStack>
+                        </WrapItem>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </Wrap>
+              </Box>
+
+              <Box maxH="200px" overflowY="auto">
+                <Text fontWeight="semibold" mb={2}>
+                  Search Results:
+                </Text>
+                <VStack align="stretch" spacing={2}>
+                  {loading ? (
+                    <Text textAlign="center">Loading...</Text>
+                  ) : (
+                    searchResult.map((user) => (
+                      <HStack
+                        key={user._id}
+                        onClick={() => handleGroup(user)}
+                        cursor="pointer"
+                        bg="gray.100"
+                        p={2}
+                        borderRadius="md"
+                        transition="all 0.2s"
+                        _hover={{ bg: "gray.200" }}
+                      >
+                        <Avatar size="sm" name={user.name} src={user.pic} />
+                        <VStack align="start" spacing={0}>
+                          <Text fontWeight="semibold">{user.name}</Text>
+                          <Text fontSize="xs" color="gray.500">
+                            {user.email}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    ))
+                  )}
+                </VStack>
+              </Box>
+            </VStack>
           </ModalBody>
           <ModalFooter>
-            <Button onClick={handleSubmit} colorScheme="blue">
-              Create Chat
+            <Button
+              onClick={handleSubmit}
+              colorScheme="blue"
+              leftIcon={<Users size={20} />}
+              isDisabled={!groupChatName || selectedUsers.length < 2}
+            >
+              Create Group Chat
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -195,3 +275,4 @@ export const GroupChatModal = ({ children }) => {
     </>
   );
 };
+
