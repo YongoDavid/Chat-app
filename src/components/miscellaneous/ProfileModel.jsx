@@ -72,7 +72,7 @@ export const ProfileModel = ({ user, children }) => {
             <ModalCloseButton />
           </ModalHeader>
           
-          <ModalBody p={0}>
+          <ModalBody p={2}>
             <VStack spacing={6} align="stretch">
               {/* Profile Section */}
               <VStack px={isMobile ? 4 : 6} pt={4} spacing={3} align="center">
