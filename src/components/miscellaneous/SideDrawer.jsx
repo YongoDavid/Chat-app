@@ -1,3 +1,4 @@
+  // Chatapp nav area  and Side Drawer
 import {
   Box,
   Input,
@@ -20,7 +21,7 @@ import {
   VStack,
   HStack,
 } from "@chakra-ui/react";
-import { Search, Bell, User, LogOut,X } from 'lucide-react';
+import { Search, UserSearch , Bell, User, LogOut,X } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
@@ -126,7 +127,7 @@ export function SideDrawer() {
       setLoadingChat(false);
     }
   };
-  // Chatapp nav area  and Side Drawer 
+ 
 
   return (
     <>
@@ -141,7 +142,7 @@ export function SideDrawer() {
         <Flex justify="space-between" align="center">
           <HStack>
             <IconButton
-              icon={<Search />}
+              icon={ <UserSearch/>}
               aria-label="Search Users"
               onClick={onOpen}
               variant="ghost"
@@ -228,12 +229,12 @@ export function SideDrawer() {
             <VStack spacing={4}>
               <HStack w="100%">
                 <Input
-                  placeholder="Search by name or email"
+                  placeholder="Name or Email"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
                 <IconButton
-                  icon={<Search />}
+                  icon={<Search size="20px" />}
                   onClick={handleSearch}
                   aria-label="Search"
                 />
