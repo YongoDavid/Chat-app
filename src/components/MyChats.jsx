@@ -1,9 +1,23 @@
-import { Box, Button, Flex, Stack, Text, Skeleton, useToast, useColorModeValue, VStack, Avatar, HStack } from "@chakra-ui/react";
-import { UserRoundPlus, CheckCheck, ChevronRight } from 'lucide-react';
+import {
+  Box,
+  Flex,
+  Stack,
+  Text,
+  Skeleton,
+  useToast,
+  useColorModeValue,
+  VStack,
+  Avatar,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
+} from "@chakra-ui/react";
+import { CheckCheck, ChevronRight, Search } from 'lucide-react';
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { getSender } from "../config/ChatLogics";
-import { GroupChatModal } from "./miscellaneous/GroupChatModal";
+// import { GroupChatModal } from "./miscellaneous/GroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import { motion } from "framer-motion";
 
@@ -41,7 +55,7 @@ export const MyChats = ({ fetchAgain }) => {
         status: "error",
         duration: 5000,
         isClosable: true,
-        position: "bottom-left",
+        position: "bottom",
       });
     }
   };
@@ -74,38 +88,50 @@ export const MyChats = ({ fetchAgain }) => {
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
       flexDir="column"
       alignItems="center"
-      p={3}
-      bg="white"
+      bg={bgColor}
       w={{ base: "100%", md: "31%" }}
-      borderRadius="lg"
-      borderWidth="1px"
+      borderRadius={{ base: "none", md: "lg" }}
+      borderWidth={{ base: "0", md: "1px" }}
+      h={{ base: "100vh", md: "auto" }}
     >
       <Flex
-        pb={3}
-        px={3}
-        fontSize={{ base: "28px", md: "30px" }}
+        p={3}
+        fontSize={{ base: "20px", md: "24px" }}
         fontFamily="Work sans"
         w="100%"
         justifyContent="space-between"
         alignItems="center"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
       >
-        <Text fontWeight="bold">Chats</Text>
-        <GroupChatModal>
-          <Button
+        {/* CHAT MAIN PAGE   */}
+        {/* <Text fontWeight="bold">Chats</Text> */}
+        {/* <GroupChatModal>
+          <IconButton
             variant="ghost"
-            size="sm"
-            p={2}
+            icon={<UserRoundPlus size={24} />}
+            aria-label="New Group Chat"
             _hover={{ bg: 'gray.100' }}
-          >
-            <UserRoundPlus size={24} />
-          </Button>
-        </GroupChatModal>
+          />
+        </GroupChatModal> */}
+        <InputGroup size="md" px={4} py={2}>
+          <InputLeftElement pointerEvents="none">
+            <Search color="gray.300" />
+          </InputLeftElement>
+          <Input
+            placeholder="Search chats..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            borderRadius="full"
+          />
+        </InputGroup>
       </Flex>
+
       <VStack
         spacing={0}
         align="stretch"
         w="100%"
-        h="calc(100% - 140px)"
+        flex={1}
         overflowY="auto"
         css={{
           "&::-webkit-scrollbar": {
@@ -124,8 +150,7 @@ export const MyChats = ({ fetchAgain }) => {
           filteredChats.map((chat) => (
             <motion.div
               key={chat._id}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              whileTap={{ scale: 0.98 }}
             >
               <Box
                 onClick={() => setSelectedChat(chat)}
@@ -134,14 +159,14 @@ export const MyChats = ({ fetchAgain }) => {
                 color={textColor}
                 px={4}
                 py={3}
-                borderBottom="1px"
+                borderBottomWidth="1px"
                 borderColor="gray.100"
                 transition="all 0.2s"
                 _hover={{
                   bg: selectedChat === chat ? selectedBgColor : hoverBgColor,
                 }}
               >
-                <HStack spacing={3} align="start">
+                <HStack spacing={3} align="center">
                   <Avatar 
                     size="md" 
                     name={!chat.isGroupChat
@@ -149,27 +174,27 @@ export const MyChats = ({ fetchAgain }) => {
                       : chat.chatName}
                     src={chat.isGroupChat ? null : chat.users.find(u => u._id !== loggedUser?._id)?.pic}
                   />
-                  <Box flex="1">
+                  <Box flex="1" overflow="hidden">
                     <Flex justify="space-between" align="center" mb={1}>
-                      <Text fontWeight="bold" fontSize="md">
+                      <Text fontWeight="bold" fontSize="md" isTruncated>
                         {!chat.isGroupChat
                           ? getSender(loggedUser, chat.users)
                           : chat.chatName}
                       </Text>
-                      <Text fontSize="xs" color={dateColor}>
+                      <Text fontSize="xs" color={dateColor} flexShrink={0} ml={2}>
                         {chat.latestMessage ? formatDate(chat.latestMessage.createdAt) : ''}
                       </Text>
                     </Flex>
                     {chat.latestMessage && (
                       <HStack spacing={1} align="center">
-                        <CheckCheck size={16} color="#63B3ED" />
-                        <Text fontSize="sm" color={mutedTextColor} noOfLines={1}>
+                        <CheckCheck size={14} color="#63B3ED" flexShrink={0} />
+                        <Text fontSize="sm" color={mutedTextColor} isTruncated>
                           {chat.latestMessage.content}
                         </Text>
                       </HStack>
                     )}
                   </Box>
-                  <ChevronRight size={18} color="#CBD5E0" />
+                  <ChevronRight size={18} color="#CBD5E0" flexShrink={0} />
                 </HStack>
               </Box>
             </motion.div>

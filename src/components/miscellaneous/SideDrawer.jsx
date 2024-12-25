@@ -1,27 +1,30 @@
-import { Button , Input , Box, Text } from "@chakra-ui/react";
-import { useDisclosure } from '@chakra-ui/react'
-import { UserSearch } from 'lucide-react';
 import {
+  Box,
+  Input,
+  Text,
+  useDisclosure,
   Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
-} from "@chakra-ui/react";
-import {
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
-  Flex
+  Flex,
+  useToast,
+  Spinner,
+  IconButton,
+  VStack,
+  HStack,
 } from "@chakra-ui/react";
-import { Tooltip , Avatar , useToast , Spinner} from "@chakra-ui/react";
-import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import { Search, Bell, User, LogOut,X } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import {ChatLoading} from "../ChatLoading";
+import { ChatLoading } from "../ChatLoading";
 import NotificationBadge from "react-notification-badge";
 import { Effect } from "react-notification-badge";
 import { getSender } from "../../config/ChatLogics";
@@ -56,47 +59,43 @@ export function SideDrawer() {
   const handleSearch = async () => {
     if (!search) {
       toast({
-        title: "Please Enter something in search",
+        title: "Please enter a search term",
         status: "warning",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
-        position: "top-left",
+        position: "top",
       });
       return;
     }
 
     try {
       setLoading(true);
-
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
           "Access-Control-Allow-Origin": "*",
         },
       };
-
       const { data } = await axios.get(
         `https://vikash-chat-app.onrender.com/api/user?search=${search}`,
         config
       );
-
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
       toast({
-        title: "Error Occured!",
-        description: "Failed to Load the Search Results",
+        title: "Error Occurred!",
+        description: "Failed to load search results",
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
-        position: "bottom-left",
+        position: "top",
       });
+      setLoading(false);
     }
   };
 
   const accessChat = async (userId) => {
-    console.log(userId);
-
     try {
       setLoadingChat(true);
       const config = {
@@ -111,7 +110,6 @@ export function SideDrawer() {
         { userId },
         config
       );
-console.log(data);
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
       setLoadingChat(false);
@@ -121,113 +119,142 @@ console.log(data);
         title: "Error fetching the chat",
         description: error.message,
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
-        position: "bottom-left",
+        position: "top",
       });
+      setLoadingChat(false);
     }
   };
+  // Chatapp nav area  and Side Drawer 
 
   return (
     <>
       <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
         bg="white"
         w="100%"
-        p="5px 10px 5px 10px"
-        borderWidth="5px"
+        p={2}
+        borderWidth="1px"
+        borderBottomWidth="1px"
+        borderColor="gray.200"
       >
-        <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
-          <Button variant="ghost" onClick={onOpen}>
-            <i className="fas fa-search"></i>
-            <Flex direction="row">
-              <UserSearch />
-              {/* <Text display={{ base: "none", md: "flex" }} px={4}>
-                Search User
-              </Text> */}
-            </Flex>
-          </Button>
-        </Tooltip>
-        <Text fontSize="2xl" fontFamily="Work sans">
-          Chat App
-        </Text>
-        <div>
-          <Menu>
-            <MenuButton p={1}>
-              <NotificationBadge
-                count={notification.length}
-                effect={Effect.SCALE}
+        <Flex justify="space-between" align="center">
+          <HStack>
+            <IconButton
+              icon={<Search />}
+              aria-label="Search Users"
+              onClick={onOpen}
+              variant="ghost"
+            />
+            <Text fontSize="xl" fontWeight="bold" display={{ base: "none", md: "flex" }}>
+              Chat App
+            </Text>
+          </HStack>
+
+          <Text fontSize="xl" fontWeight="bold" display={{ base: "flex", md: "none" }}>
+            Chat App
+          </Text>
+
+          <HStack spacing={2}>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label="Notifications"
+                icon={
+                  <Box position="relative">
+                    <Bell />
+                    <NotificationBadge
+                      count={notification.length}
+                      effect={Effect.SCALE}
+                      style={{ position: 'absolute', top: -5, right: -5 }}
+                    />
+                  </Box>
+                }
+                variant="ghost"
               />
-              <BellIcon fontSize="2xl" m={1} />
-            </MenuButton>
-            <MenuList pl={2}>
-              {!notification.length && "No New Messages"}
-              {notification.map((notif) => (
-                <MenuItem
-                  key={notif._id}
-                  onClick={() => {
-                    setSelectedChat(notif.chat);
-                    setNotification(notification.filter((n) => n !== notif));
-                  }}
-                >
-                  {notif.chat.isGroupChat
-                    ? `New Message in ${notif.chat.chatName}`
-                    : `New Message from ${getSender(user, notif.chat.users)}`}
+              <MenuList>
+                {!notification.length && <MenuItem>No New Messages</MenuItem>}
+                {notification.map((notif) => (
+                  <MenuItem
+                    key={notif._id}
+                    onClick={() => {
+                      setSelectedChat(notif.chat);
+                      setNotification(notification.filter((n) => n !== notif));
+                    }}
+                  >
+                    {notif.chat.isGroupChat
+                      ? `New Message in ${notif.chat.chatName}`
+                      : `New Message from ${getSender(user, notif.chat.users)}`}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </Menu>
+            <Menu>
+              <MenuButton
+                as={IconButton}
+                aria-label="User menu"
+                icon={<User />}
+                variant="ghost"
+              />
+              <MenuList>
+                <ProfileModel user={user}>
+                  <MenuItem icon={<User size={18} />}>My Profile</MenuItem>
+                </ProfileModel>
+                <MenuDivider />
+                <MenuItem icon={<LogOut size={18} />} onClick={logoutHandler}>
+                  Logout
                 </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-          <Menu>
-            <MenuButton as={Button} bg="white" rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size="sm"
-                cursor="pointer"
-                name={user.name}
-                src={user.pic}
-              />
-            </MenuButton>
-            <MenuList>
-              <ProfileModel user={user}>
-                <MenuItem>My Profile</MenuItem>{" "}
-              </ProfileModel>
-              <MenuDivider />
-              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
-        </div>
+              </MenuList>
+            </Menu>
+          </HStack>
+        </Flex>
       </Box>
 
       <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px">Search Users</DrawerHeader>
-          <DrawerBody>
-            <Box display="flex" pb={2}>
-              <Input
-                placeholder="Search by name or email"
-                mr={2}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+          <DrawerHeader borderBottomWidth="1px">
+            <Flex justify="space-between" align="center">
+              Search Users
+              <IconButton
+                icon={<X />}
+                onClick={onClose}
+                variant="ghost"
+                aria-label="Close drawer"
               />
-              <Button onClick={handleSearch}>Go</Button>
-            </Box>
-            {loading ? (
-              <ChatLoading />
-            ) : (
-              searchResult?.map((user) => (
-                <UserListItem
-                  key={user._id}
-                  user={user}
-                  handleFunction={() => accessChat(user._id)}
+            </Flex>
+          </DrawerHeader>
+          <DrawerBody>
+            <VStack spacing={4}>
+              <HStack w="100%">
+                <Input
+                  placeholder="Search by name or email"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
-              ))
-            )}
-            {loadingChat && <Spinner ml="auto" display="flex" />}
+                <IconButton
+                  icon={<Search />}
+                  onClick={handleSearch}
+                  aria-label="Search"
+                />
+              </HStack>
+              {loading ? (
+                <ChatLoading />
+              ) : (
+                searchResult?.map((user) => (
+                  <UserListItem
+                    key={user._id}
+                    user={user}
+                    handleFunction={() => accessChat(user._id)}
+                  />
+                ))
+              )}
+              {loadingChat && <Spinner />}
+            </VStack>
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </>
   );
 }
+

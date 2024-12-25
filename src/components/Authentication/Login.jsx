@@ -15,7 +15,7 @@ import {
   Link,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock, LogIn } from 'lucide-react';
+import { Eye, EyeOff, Mail, LogIn } from 'lucide-react';
 import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";

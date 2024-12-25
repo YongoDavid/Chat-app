@@ -15,8 +15,6 @@ import {
   Box,
   Switch,
   Button,
-  Grid,
-  GridItem,
   Divider,
 } from "@chakra-ui/react";
 import { BsCameraVideo, BsTelephone } from "react-icons/bs";
