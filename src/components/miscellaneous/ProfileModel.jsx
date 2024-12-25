@@ -1,4 +1,3 @@
-import { ViewIcon } from "@chakra-ui/icons";
 import {
   IconButton,
   useDisclosure,
@@ -16,23 +15,31 @@ import {
   Switch,
   Button,
   Divider,
+  useColorModeValue,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { BsCameraVideo, BsTelephone } from "react-icons/bs";
-import { RiUserUnfollowLine, RiFlag2Line, RiDeleteBin6Line } from "react-icons/ri";
+import { Eye, Video, Phone, UserMinus, Flag, Trash2, ChevronRight, Bell, Clock } from 'lucide-react';
 
 export const ProfileModel = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
+  const mutedTextColor = useColorModeValue("gray.600", "gray.400");
+
+  const isMobile = useBreakpointValue({ base: true, md: false });
+
   return (
     <>
       {children ? (
-        <span onClick={onOpen}>{children}</span>
+        <Box onClick={onOpen}>{children}</Box>
       ) : (
         <IconButton
           display={{ base: "flex" }}
-          icon={<ViewIcon />}
+          icon={<Eye />}
           onClick={onOpen}
           aria-label="View Profile"
+          variant="ghost"
         />
       )}
       
@@ -41,19 +48,34 @@ export const ProfileModel = ({ user, children }) => {
         isOpen={isOpen}
         onClose={onClose}
         motionPreset="slideInBottom"
-        size="sm"
+        size={isMobile ? "full" : "sm"}
       >
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
-        <ModalContent borderRadius="xl" maxH="85vh" overflow="auto">
-          <ModalHeader fontSize="lg" fontWeight="medium" pb={2}>
+        <ModalContent 
+          borderRadius={isMobile ? "none" : "xl"} 
+          maxH={isMobile ? "100vh" : "85vh"} 
+          overflow="auto" 
+          bg={bgColor}
+        >
+          <ModalHeader 
+            fontSize="lg" 
+            fontWeight="medium" 
+            pb={2}
+            position={isMobile ? "sticky" : "static"}
+            top={0}
+            zIndex={10}
+            bg={bgColor}
+            borderBottom={isMobile ? "1px solid" : "none"}
+            borderColor="gray.200"
+          >
             Contact info
+            <ModalCloseButton />
           </ModalHeader>
-          <ModalCloseButton />
           
           <ModalBody p={0}>
             <VStack spacing={6} align="stretch">
               {/* Profile Section */}
-              <VStack px={6} spacing={3} align="center">
+              <VStack px={isMobile ? 4 : 6} pt={4} spacing={3} align="center">
                 <Image
                   borderRadius="full"
                   boxSize="120px"
@@ -62,7 +84,7 @@ export const ProfileModel = ({ user, children }) => {
                   objectFit="cover"
                 />
                 <VStack spacing={1}>
-                  <Text fontSize="xl" fontWeight="bold">
+                  <Text fontSize="xl" fontWeight="bold" color={textColor}>
                     {user?.name}
                   </Text>
                   <Text fontSize="sm" color="green.500">
@@ -73,14 +95,14 @@ export const ProfileModel = ({ user, children }) => {
                 <HStack spacing={4}>
                   <IconButton
                     aria-label="Video Call"
-                    icon={<BsCameraVideo />}
+                    icon={<Video size={24} />}
                     variant="ghost"
                     rounded="full"
                     size="lg"
                   />
                   <IconButton
                     aria-label="Voice Call"
-                    icon={<BsTelephone />}
+                    icon={<Phone size={24} />}
                     variant="ghost"
                     rounded="full"
                     size="lg"
@@ -89,32 +111,67 @@ export const ProfileModel = ({ user, children }) => {
               </VStack>
 
               {/* About Section */}
-              <Box px={6}>
-                <Text fontWeight="bold" mb={2}>
+              <Box px={isMobile ? 4 : 6} py={2}>
+                <Text fontWeight="bold" mb={2} color={textColor}>
                   About
                 </Text>
-                <Text color="gray.600">
-                  {user?.about || "Hello! My name is " + user?.name}
+                <Text color={mutedTextColor}>
+                  {user?.about || `Hello! My name is ${user?.name}`}
                 </Text>
               </Box>
 
               {/* Settings Section */}
-              <VStack px={6} spacing={4} align="stretch">
-                <HStack justify="space-between">
-                  <Text>Mute notifications</Text>
-                  <Switch colorScheme="blue" />
-                </HStack>
-                <HStack justify="space-between">
-                  <Text>Disappearing messages</Text>
-                  <Text color="gray.500">Off</Text>
-                </HStack>
+              <VStack px={isMobile ? 4 : 6} py={2} spacing={4} align="stretch">
+                {isMobile ? (
+                  <>
+                    <HStack justify="space-between" 
+                      as={Button} 
+                      variant="ghost" 
+                      w="full" 
+                      justifyContent="space-between" 
+                      px={0}
+                      rightIcon={<ChevronRight size={20} />}
+                    >
+                      <HStack>
+                        <Bell size={20} />
+                        <Text>Mute notifications</Text>
+                      </HStack>
+                      <Switch colorScheme="blue" size="sm" />
+                    </HStack>
+                    <HStack justify="space-between" 
+                      as={Button} 
+                      variant="ghost" 
+                      w="full" 
+                      justifyContent="space-between"
+                      px={0}
+                      rightIcon={<ChevronRight size={20} />}
+                    >
+                      <HStack>
+                        <Clock size={20} />
+                        <Text>Disappearing messages</Text>
+                      </HStack>
+                      <Text fontSize="sm" color={mutedTextColor}>Off</Text>
+                    </HStack>
+                  </>
+                ) : (
+                  <>
+                    <HStack justify="space-between">
+                      <Text>Mute notifications</Text>
+                      <Switch colorScheme="blue" />
+                    </HStack>
+                    <HStack justify="space-between">
+                      <Text>Disappearing messages</Text>
+                      <Text color="gray.500">Off</Text>
+                    </HStack>
+                  </>
+                )}
               </VStack>
 
               {/* Action Buttons */}
-              <VStack px={6} pb={6} spacing={3} align="stretch">
+              <VStack px={isMobile ? 4 : 6} pb={6} spacing={3} align="stretch">
                 <Divider />
                 <Button
-                  leftIcon={<RiUserUnfollowLine />}
+                  leftIcon={<UserMinus size={20} />}
                   variant="ghost"
                   colorScheme="red"
                   justifyContent="flex-start"
@@ -123,7 +180,7 @@ export const ProfileModel = ({ user, children }) => {
                   Block {user?.name}
                 </Button>
                 <Button
-                  leftIcon={<RiFlag2Line />}
+                  leftIcon={<Flag size={20} />}
                   variant="ghost"
                   colorScheme="red"
                   justifyContent="flex-start"
@@ -132,7 +189,7 @@ export const ProfileModel = ({ user, children }) => {
                   Report {user?.name}
                 </Button>
                 <Button
-                  leftIcon={<RiDeleteBin6Line />}
+                  leftIcon={<Trash2 size={20} />}
                   variant="ghost"
                   colorScheme="red"
                   justifyContent="flex-start"
@@ -148,3 +205,4 @@ export const ProfileModel = ({ user, children }) => {
     </>
   );
 };
+
