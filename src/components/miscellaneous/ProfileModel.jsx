@@ -53,7 +53,7 @@ export const ProfileModel = ({ user, children }) => {
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
         <ModalContent 
           borderRadius={isMobile ? "none" : "xl"} 
-          maxH={isMobile ? "100vh" : "85vh"} 
+          maxH={isMobile ? "100vh" : "100vh"} 
           overflow="auto" 
           bg={bgColor}
         >
@@ -72,7 +72,7 @@ export const ProfileModel = ({ user, children }) => {
             <ModalCloseButton />
           </ModalHeader>
           
-          <ModalBody p={2}>
+          <ModalBody p={0}>
             <VStack spacing={6} align="stretch">
               {/* Profile Section */}
               <VStack px={isMobile ? 4 : 6} pt={4} spacing={3} align="center">
