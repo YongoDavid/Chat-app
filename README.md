@@ -45,3 +45,341 @@ Made some adjustmets to chakra UI
 added some changes to the profile section
 
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
+
+
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Box,
+  Text,
+  Flex,
+  IconButton,
+  Input,
+  Spinner,
+  useToast,
+  Avatar,
+  VStack,
+  HStack,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { ArrowLeft, Send, Phone, Video, MoreVertical } from 'lucide-react';
+import axios from "axios";
+import Lottie from "react-lottie";
+import io from "socket.io-client";
+import { ScrollableChat } from "./ScrollableChat";
+import { ProfileModel } from "./miscellaneous/ProfileModel";
+import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
+import { ChatState } from "../Context/ChatProvider";
+import { getSender, getSenderFull } from "../config/ChatLogics";
+import animationData from "../animations/typing.json";
+
+const ENDPOINT = "https://vikash-chat-app.onrender.com";
+
+let socket, selectedChatCompare;
+
+export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const toast = useToast();
+  const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
+  const messagesEndRef = useRef(null);
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
+  const inputBgColor = useColorModeValue("gray.100", "gray.700");
+  const chatBgColor = useColorModeValue("gray.50", "gray.700");
+
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          "Access-Control-Allow-Origin": "*",
+        },
+      };
+
+      setLoading(true);
+
+      const { data } = await axios.get(
+        `https://vikash-chat-app.onrender.com/api/message/${selectedChat._id}`,
+        config
+      );
+      setMessages(data);
+      setLoading(false);
+
+      socket.emit("join chat", selectedChat._id);
+    } catch (error) {
+      toast({
+        title: "Error Occurred!",
+        description: "Failed to Load the Messages",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+
+  const sendMessage = async () => {
+    if (newMessage) {
+      socket.emit("stop typing", selectedChat._id);
+      try {
+        const config = {
+          headers: {
+            "Content-type": "application/json",
+            Authorization: `Bearer ${user.token}`,
+            "Access-Control-Allow-Origin": "*",
+          },
+        };
+        setNewMessage("");
+        const { data } = await axios.post(
+          "https://vikash-chat-app.onrender.com/api/message",
+          {
+            content: newMessage,
+            chatId: selectedChat,
+          },
+          config
+        );
+        socket.emit("new message", data);
+        setMessages([...messages, data]);
+      } catch (error) {
+        toast({
+          title: "Error Occurred!",
+          description: "Failed to send the Message",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom",
+        });
+      }
+    }
+  };
+
+  useEffect(() => {
+    socket = io(ENDPOINT, {
+      transports: ['websocket', 'polling', 'flashsocket']
+    });
+    socket.emit("setup", user);
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+
+    return () => {
+      socket.off("setup");
+      socket.off("connected");
+      socket.off("typing");
+      socket.off("stop typing");
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchMessages();
+    selectedChatCompare = selectedChat;
+  }, [selectedChat]);
+
+  useEffect(() => {
+    const handleNewMessage = (newMessageReceived) => {
+      if (
+        !selectedChatCompare || 
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
+          setFetchAgain(!fetchAgain);
+        }
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    };
+
+    socket.on("message received", handleNewMessage);
+
+    return () => {
+      socket.off("message received", handleNewMessage);
+    };
+  }, [selectedChatCompare, notification, fetchAgain]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    let lastTypingTime = new Date().getTime();
+    var timerLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTypingTime;
+      if (timeDiff >= timerLength && typing) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, timerLength);
+  };
+
+  return (
+    <Flex direction="column" h="100%" position="relative">
+      {selectedChat ? (
+        <>
+          <Flex 
+            align="center" 
+            justify="space-between" 
+            p={4} 
+            borderBottom="1px" 
+            borderColor="gray.200"
+            position={{ base: "fixed", md: "static" }}
+            top={0}
+            left={0}
+            right={0}
+            bg={bgColor}
+            zIndex={10}
+          >
+            <HStack spacing={3}>
+              <IconButton
+                display={{ base: "flex", md: "none" }}
+                icon={<ArrowLeft size={20} />}
+                onClick={() => setSelectedChat("")}
+                aria-label="Back"
+                variant="ghost"
+              />
+              <Avatar 
+                size="sm" 
+                name={!selectedChat.isGroupChat 
+                  ? getSender(user, selectedChat.users) 
+                  : selectedChat.chatName
+                } 
+                src={!selectedChat.isGroupChat 
+                  ? getSenderFull(user, selectedChat.users).pic 
+                  : undefined
+                }
+              />
+              <VStack align="start" spacing={0}>
+                <Text fontWeight="bold" fontSize="sm">
+                  {!selectedChat.isGroupChat
+                    ? getSender(user, selectedChat.users)
+                    : selectedChat.chatName}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {selectedChat.isGroupChat ? `${selectedChat.users.length} members` : "Online"}
+                </Text>
+              </VStack>
+            </HStack>
+            <HStack>
+              <IconButton
+                icon={<Phone size={18} />}
+                aria-label="Voice Call"
+                variant="ghost"
+                size="sm"
+              />
+              <IconButton
+                icon={<Video size={18} />}
+                aria-label="Video Call"
+                variant="ghost"
+                size="sm"
+              />
+              {selectedChat.isGroupChat ? (
+                <UpdateGroupChatModal
+                  fetchMessages={fetchMessages}
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                >
+                  <IconButton
+                    icon={<MoreVertical size={18} />}
+                    aria-label="More options"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </UpdateGroupChatModal>
+              ) : (
+                <ProfileModel user={getSenderFull(user, selectedChat.users)}>
+                  <IconButton
+                    icon={<MoreVertical size={18} />}
+                    aria-label="More options"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </ProfileModel>
+              )}
+            </HStack>
+          </Flex>
+
+          <Box 
+            flex={1} 
+            overflowY="auto" 
+            p={3} 
+            pt={{ base: "70px", md: 3 }}
+            bg={chatBgColor} 
+            position="relative"
+          >
+            {loading ? (
+              <Flex justify="center" align="center" h="100%">
+                <Spinner size="xl" />
+              </Flex>
+            ) : (
+              <VStack spacing={3} align="stretch">
+                <ScrollableChat messages={messages} />
+                <div ref={messagesEndRef} />
+              </VStack>
+            )}
+          </Box>
+
+          <Box p={3} borderTop="1px" borderColor="gray.200">
+            {isTyping && (
+              <Lottie
+                options={defaultOptions}
+                width={70}
+                style={{ marginBottom: 15, marginLeft: 0 }}
+              />
+            )}
+            <Flex>
+              <Input
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={typingHandler}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                bg={inputBgColor}
+                borderRadius="full"
+                mr={2}
+              />
+              <IconButton
+                colorScheme="blue"
+                aria-label="Send message"
+                icon={<Send size={18} />}
+                onClick={sendMessage}
+                isRound
+              />
+            </Flex>
+          </Box>
+        </>
+      ) : (
+        <Flex align="center" justify="center" h="100%">
+          <Text fontSize="xl" fontWeight="medium" color={textColor}>
+            Select a chat to start messaging
+          </Text>
+        </Flex>
+      )}
+    </Flex>
+  );
+};
+
