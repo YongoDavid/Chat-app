@@ -43,3 +43,5 @@ Login , Signup and Homepage desgin update
 <!-- i will be down grading my node.js in other to run old version dependencies  -->
 Made some adjustmets to chakra UI 
 added some changes to the profile section
+
+import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";

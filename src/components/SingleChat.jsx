@@ -1,23 +1,32 @@
-import { FormControl } from "@chakra-ui/react";
-import { Input } from '@chakra-ui/react'
-import { Box, Text } from "@chakra-ui/react";
-import "./styles.css";
-import { IconButton, Spinner, useToast } from "@chakra-ui/react";
-import { getSender, getSenderFull } from "../config/ChatLogics";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  Box,
+  Text,
+  Flex,
+  IconButton,
+  Input,
+  Spinner,
+  useToast,
+  Avatar,
+  VStack,
+  HStack,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { ArrowLeft, Send, Phone, Video, MoreVertical } from 'lucide-react';
 import axios from "axios";
-import { ArrowBackIcon } from "@chakra-ui/icons";
-import {ScrollableChat} from "./ScrollableChat";
 import Lottie from "react-lottie";
-import animationData from "../animations/typing.json";
-import {ProfileModel} from "../components/miscellaneous/ProfileModel"
 import io from "socket.io-client";
+import { ScrollableChat } from "./ScrollableChat";
+import { ProfileModel } from "./miscellaneous/ProfileModel";
+// import { UpdateGroupChatModal } from "./miscellaneous/UpdateGroupChatModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
-// HOSTED ENDPOINT 
-const ENDPOINT = "https://vikash-chat-app.onrender.com"; // 
+import { getSender, getSenderFull } from "../config/ChatLogics";
+import animationData from "../animations/typing.json";
 
-var socket, selectedChatCompare;
+const ENDPOINT = "https://vikash-chat-app.onrender.com";
+
+let socket, selectedChatCompare;
 
 export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
@@ -25,8 +34,15 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
-  const [istyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const toast = useToast();
+  const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
+  const messagesEndRef = useRef(null);
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const textColor = useColorModeValue("gray.800", "white");
+  const inputBgColor = useColorModeValue("gray.100", "gray.700");
+  const chatBgColor = useColorModeValue("gray.50", "gray.700");
 
   const defaultOptions = {
     loop: true,
@@ -36,8 +52,6 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       preserveAspectRatio: "xMidYMid slice",
     },
   };
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
-    ChatState();
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -62,7 +76,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Messages",
         status: "error",
         duration: 5000,
@@ -72,8 +86,8 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  const sendMessage = async (event) => {
-    if (event.key === "Enter" && newMessage) {
+  const sendMessage = async () => {
+    if (newMessage) {
       socket.emit("stop typing", selectedChat._id);
       try {
         const config = {
@@ -96,7 +110,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages([...messages, data]);
       } catch (error) {
         toast({
-          title: "Error Occured!",
+          title: "Error Occurred!",
           description: "Failed to send the Message",
           status: "error",
           duration: 5000,
@@ -116,31 +130,44 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
 
-    // eslint-disable-next-line
+    return () => {
+      socket.off("setup");
+      socket.off("connected");
+      socket.off("typing");
+      socket.off("stop typing");
+    };
   }, []);
 
   useEffect(() => {
     fetchMessages();
-
     selectedChatCompare = selectedChat;
-    // eslint-disable-next-line
   }, [selectedChat]);
 
   useEffect(() => {
-    socket.on("message recieved", (newMessageRecieved) => {
+    const handleNewMessage = (newMessageReceived) => {
       if (
-        !selectedChatCompare || // if chat is not selected or doesn't match current chat
-        selectedChatCompare._id !== newMessageRecieved.chat._id
+        !selectedChatCompare || 
+        selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        if (!notification.includes(newMessageRecieved)) {
-          setNotification([newMessageRecieved, ...notification]);
+        if (!notification.includes(newMessageReceived)) {
+          setNotification([newMessageReceived, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessages([...messages, newMessageRecieved]);
+        setMessages([...messages, newMessageReceived]);
       }
-    });
-  });
+    };
+
+    socket.on("message received", handleNewMessage);
+
+    return () => {
+      socket.off("message received", handleNewMessage);
+    };
+  }, [selectedChatCompare, notification, fetchAgain]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -164,105 +191,134 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <>
+    <Flex direction="column" h="100%">
       {selectedChat ? (
         <>
-          <Text
-            fontSize={{ base: "28px", md: "30px" }}
-            pb={3}
-            px={2}
-            w="100%"
-            fontFamily="Work sans"
-            display="flex"
-            justifyContent={{ base: "space-between" }}
-            alignItems="center"
+          <Flex 
+            align="center" 
+            justify="space-between" 
+            p={4} 
+            borderBottom="1px" 
+            borderColor="gray.200"
           >
-            <IconButton
-              display={{ base: "flex", md: "none" }}
-              icon={<ArrowBackIcon />}
-              onClick={() => setSelectedChat("")}
-            />
-            {messages &&
-              (!selectedChat.isGroupChat ? (
-                <>
-                  {getSender(user, selectedChat.users)}
-                  <ProfileModel
-                    user={getSenderFull(user, selectedChat.users)}
-                  />
-                </>
-              ) : (
-                <>
-                  {selectedChat.chatName.toUpperCase()}
-                  <UpdateGroupChatModal
-                    fetchMessages={fetchMessages}
-                    fetchAgain={fetchAgain}
-                    setFetchAgain={setFetchAgain}
-                  />
-                </>
-              ))}
-          </Text>
-          {/* CHAT BOX AREA  */}
-          <Box
-            display="flex"
-            flexDir="column"
-            justifyContent="flex-end"
-            p={3}
-            bg="#E8E8E8"
-            w="100%"
-            h="100%"
-            borderRadius="lg"
-            overflowY="hidden"
-          >
-            {loading ? (
-              <Spinner
-                size="xl"
-                w={20}
-                h={20}
-                alignSelf="center"
-                margin="auto"
+            <HStack spacing={3}>
+              <IconButton
+                display={{ base: "flex", md: "none" }}
+                icon={<ArrowLeft size={20} />}
+                onClick={() => setSelectedChat("")}
+                aria-label="Back"
+                variant="ghost"
               />
-            ) : (
-              <div className="messages">
-                <ScrollableChat messages={messages} />
-              </div>
-            )}
-
-            <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
-            >
-              {istyping ? (
-                <div>
-                  <Lottie
-                    options={defaultOptions}
-                    // height={50}
-                    width={70}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
+              <Avatar 
+                size="sm" 
+                name={!selectedChat.isGroupChat 
+                  ? getSender(user, selectedChat.users) 
+                  : selectedChat.chatName
+                } 
+                src={!selectedChat.isGroupChat 
+                  ? getSenderFull(user, selectedChat.users).pic 
+                  : undefined
+                }
+              />
+              <VStack align="start" spacing={0}>
+                <Text fontWeight="bold" fontSize="sm">
+                  {!selectedChat.isGroupChat
+                    ? getSender(user, selectedChat.users)
+                    : selectedChat.chatName}
+                </Text>
+                <Text fontSize="xs" color="gray.500">
+                  {selectedChat.isGroupChat ? `${selectedChat.users.length} members` : "Online"}
+                </Text>
+              </VStack>
+            </HStack>
+            <HStack>
+              <IconButton
+                icon={<Phone size={18} />}
+                aria-label="Voice Call"
+                variant="ghost"
+                size="sm"
+              />
+              <IconButton
+                icon={<Video size={18} />}
+                aria-label="Video Call"
+                variant="ghost"
+                size="sm"
+              />
+              {selectedChat.isGroupChat ? (
+                <UpdateGroupChatModal
+                  fetchMessages={fetchMessages}
+                  fetchAgain={fetchAgain}
+                  setFetchAgain={setFetchAgain}
+                >
+                  <IconButton
+                    icon={<MoreVertical size={18} />}
+                    aria-label="More options"
+                    variant="ghost"
+                    size="sm"
                   />
-                </div>
+                </UpdateGroupChatModal>
               ) : (
-                <></>
+                <ProfileModel user={getSenderFull(user, selectedChat.users)}>
+                  <IconButton
+                    icon={<MoreVertical size={18} />}
+                    aria-label="More options"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </ProfileModel>
               )}
+            </HStack>
+          </Flex>
+
+          <Box flex={1} overflowY="auto" p={3} bg={chatBgColor} position="relative">
+            {loading ? (
+              <Flex justify="center" align="center" h="100%">
+                <Spinner size="xl" />
+              </Flex>
+            ) : (
+              <VStack spacing={3} align="stretch">
+                <ScrollableChat messages={messages} />
+                <div ref={messagesEndRef} />
+              </VStack>
+            )}
+          </Box>
+
+          <Box p={3} borderTop="1px" borderColor="gray.200">
+            {isTyping && (
+              <Lottie
+                options={defaultOptions}
+                width={70}
+                style={{ marginBottom: 15, marginLeft: 0 }}
+              />
+            )}
+            <Flex>
               <Input
-                variant="filled"
-                bg="#E0E0E0"
-                placeholder="Enter a message.."
+                placeholder="Type a message..."
                 value={newMessage}
                 onChange={typingHandler}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                bg={inputBgColor}
+                borderRadius="full"
+                mr={2}
               />
-            </FormControl>
+              <IconButton
+                colorScheme="blue"
+                aria-label="Send message"
+                icon={<Send size={18} />}
+                onClick={sendMessage}
+                isRound
+              />
+            </Flex>
           </Box>
         </>
       ) : (
-        // to get socket.io on same page
-        <Box display="flex" alignItems="center" justifyContent="center" h="100%">
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
-            Click on a user to start chatting
+        <Flex align="center" justify="center" h="100%">
+          <Text fontSize="xl" fontWeight="medium" color={textColor}>
+            Select a chat to start messaging
           </Text>
-        </Box>
+        </Flex>
       )}
-    </>
+    </Flex>
   );
 };
+
