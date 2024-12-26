@@ -18,7 +18,6 @@ import Lottie from "react-lottie";
 import io from "socket.io-client";
 import { ScrollableChat } from "./ScrollableChat";
 import { ProfileModel } from "./miscellaneous/ProfileModel";
-// import { UpdateGroupChatModal } from "./miscellaneous/UpdateGroupChatModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
 import { getSender, getSenderFull } from "../config/ChatLogics";
@@ -191,7 +190,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <Flex direction="column" h="100%">
+    <Flex direction="column" h="100%" position="relative">
       {selectedChat ? (
         <>
           <Flex 
@@ -200,6 +199,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             p={4} 
             borderBottom="1px" 
             borderColor="gray.200"
+            position={{ base: "fixed", md: "static" }}
+            top={0}
+            left={0}
+            right={0}
+            bg={bgColor}
+            zIndex={10}
           >
             <HStack spacing={3}>
               <IconButton
@@ -270,7 +275,14 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             </HStack>
           </Flex>
 
-          <Box flex={1} overflowY="auto" p={3} bg={chatBgColor} position="relative">
+          <Box 
+            flex={1} 
+            overflowY="auto" 
+            p={3} 
+            pt={{ base: "70px", md: 3 }}
+            bg={chatBgColor} 
+            position="relative"
+          >
             {loading ? (
               <Flex justify="center" align="center" h="100%">
                 <Spinner size="xl" />
