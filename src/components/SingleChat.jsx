@@ -190,7 +190,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <Flex direction="column" h="100vh" maxH="100vh" overflow="hidden">
+    <Flex direction="column" h="100%" position="relative">
       {selectedChat ? (
         <>
           <Flex 
@@ -199,13 +199,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             p={4} 
             borderBottom="1px" 
             borderColor="gray.200"
-            bg={bgColor}
-            position="fixed"
+            position={{ base: "fixed", md: "static" }}
             top={0}
             left={0}
             right={0}
+            bg={bgColor}
             zIndex={10}
-            h="60px"
           >
             <HStack spacing={3}>
               <IconButton
@@ -276,48 +275,53 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             </HStack>
           </Flex>
 
-          <Flex direction="column" pt="60px" h="calc(100vh - 60px)" overflow="hidden">
-            <Box flex={1} overflowY="auto" p={3} bg={chatBgColor}>
-              {loading ? (
-                <Flex justify="center" align="center" h="100%">
-                  <Spinner size="xl" />
-                </Flex>
-              ) : (
-                <VStack spacing={3} align="stretch">
-                  <ScrollableChat messages={messages} />
-                  <div ref={messagesEndRef} />
-                </VStack>
-              )}
-            </Box>
-
-            <Box p={3} borderTop="1px" borderColor="gray.200" bg={bgColor}>
-              {isTyping && (
-                <Lottie
-                  options={defaultOptions}
-                  width={70}
-                  style={{ marginBottom: 15, marginLeft: 0 }}
-                />
-              )}
-              <Flex>
-                <Input
-                  placeholder="Type a message..."
-                  value={newMessage}
-                  onChange={typingHandler}
-                  onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                  bg={inputBgColor}
-                  borderRadius="full"
-                  mr={2}
-                />
-                <IconButton
-                  colorScheme="blue"
-                  aria-label="Send message"
-                  icon={<Send size={18} />}
-                  onClick={sendMessage}
-                  isRound
-                />
+          <Box 
+            flex={1} 
+            overflowY="auto" 
+            p={3} 
+            pt={{ base: "70px", md: 3 }}
+            bg={chatBgColor} 
+            position="relative"
+          >
+            {loading ? (
+              <Flex justify="center" align="center" h="100%">
+                <Spinner size="xl" />
               </Flex>
-            </Box>
-          </Flex>
+            ) : (
+              <VStack spacing={3} align="stretch">
+                <ScrollableChat messages={messages} />
+                <div ref={messagesEndRef} />
+              </VStack>
+            )}
+          </Box>
+
+          <Box p={3} borderTop="1px" borderColor="gray.200">
+            {isTyping && (
+              <Lottie
+                options={defaultOptions}
+                width={70}
+                style={{ marginBottom: 15, marginLeft: 0 }}
+              />
+            )}
+            <Flex>
+              <Input
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={typingHandler}
+                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                bg={inputBgColor}
+                borderRadius="full"
+                mr={2}
+              />
+              <IconButton
+                colorScheme="blue"
+                aria-label="Send message"
+                icon={<Send size={18} />}
+                onClick={sendMessage}
+                isRound
+              />
+            </Flex>
+          </Box>
         </>
       ) : (
         <Flex align="center" justify="center" h="100%">
@@ -329,4 +333,3 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     </Flex>
   );
 };
-
