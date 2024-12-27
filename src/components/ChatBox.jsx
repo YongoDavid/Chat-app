@@ -22,4 +22,3 @@ export const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     </Box>
   );
 };
-

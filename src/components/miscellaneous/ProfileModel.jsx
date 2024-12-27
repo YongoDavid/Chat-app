@@ -48,7 +48,7 @@ export const ProfileModel = ({ user, children }) => {
         isOpen={isOpen}
         onClose={onClose}
         motionPreset="slideInBottom"
-        size={isMobile ? "full" : "sm"}
+        size={isMobile ? "full" : "full"}
         scrollBehavior={isMobile ? "inside" : "outside"}
       >
         <ModalOverlay bg="blackAlpha.300" backdropFilter="blur(10px)" />
