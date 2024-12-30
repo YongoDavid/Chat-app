@@ -20,7 +20,9 @@ import {
   IconButton,
   VStack,
   HStack,
+  useColorModeValue,
 } from "@chakra-ui/react";
+import {ColorModeToggle} from '../ColorModeToggle';
 import { Search, UserSearch , Bell, User, LogOut,X } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -38,6 +40,7 @@ export function SideDrawer() {
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
+  const bgColor = useColorModeValue("white", "gray.800");
 
   const {
     setSelectedChat,
@@ -132,7 +135,7 @@ export function SideDrawer() {
   return (
     <>
       <Box
-        bg="white"
+        bg={bgColor}
         w="100%"
         p={2}
         borderWidth="1px"
@@ -190,6 +193,7 @@ export function SideDrawer() {
                 ))}
               </MenuList>
             </Menu>
+            <ColorModeToggle />
             <Menu>
               <MenuButton
                 as={IconButton}

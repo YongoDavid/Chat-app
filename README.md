@@ -45,3 +45,4 @@ Made some adjustmets to chakra UI
 added some changes to the profile section
 
 implimented the colormodetoggle in components and made adjustment to my app.js file
+imported the colormodetoggle into sidedrawer and used the "useColorModeValue"

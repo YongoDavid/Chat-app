@@ -13,7 +13,6 @@ import {
   InputGroup,
   InputLeftElement,
 } from "@chakra-ui/react";
-import { ColorModeToggle } from "./ColorModeToggle";
 import { CheckCheck, ChevronRight, Search } from 'lucide-react';
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -95,7 +94,6 @@ export const MyChats = ({ fetchAgain }) => {
       borderWidth={{ base: "0", md: "1px" }}
       h={{ base: "100vh", md: "auto" }}
     >
-      <ColorModeToggle/>
       <Flex
         p={3}
         fontSize={{ base: "20px", md: "24px" }}
