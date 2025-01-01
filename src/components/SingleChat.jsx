@@ -48,6 +48,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const headerBgColor = useColorModeValue("white", "gray.800");
   const subTextColor = useColorModeValue("gray.500", "gray.400");
   const placeholderColor = useColorModeValue("gray.500", "gray.400");
+  const messageTextColor = useColorModeValue("black", "black");
 
   const defaultOptions = {
     loop: true,
@@ -301,7 +302,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </Flex>
               ) : (
                 <VStack spacing={3} align="stretch">
-                  <ScrollableChat messages={messages} />
+                  <ScrollableChat messages={messages} messageTextColor={messageTextColor} />
                   <div ref={messagesEndRef} />
                 </VStack>
               )}

@@ -30,7 +30,7 @@ export const MyChats = ({ fetchAgain }) => {
   const bgColor = useColorModeValue("white", "gray.800");
   const hoverBgColor = useColorModeValue("gray.50", "gray.700");
   const selectedBgColor = useColorModeValue("blue.50", "blue.900");
-  const textColor = useColorModeValue("gray.800", "white");
+  const textColor = useColorModeValue("gray.800", "gray.100");
   const mutedTextColor = useColorModeValue("gray.500", "gray.400");
   const dateColor = useColorModeValue("gray.500", "gray.500");
 
