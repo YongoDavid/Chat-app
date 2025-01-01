@@ -38,10 +38,16 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
   const messagesEndRef = useRef(null);
 
-  const bgColor = useColorModeValue("white", "gray.800");
-  const textColor = useColorModeValue("gray.800", "white");
+  // Move all useColorModeValue calls here
+  const bgColor = useColorModeValue("white", "gray.900");
+  const textColor = useColorModeValue("gray.800", "gray.100");
   const inputBgColor = useColorModeValue("gray.100", "gray.700");
-  const chatBgColor = useColorModeValue("gray.50", "gray.700");
+  const chatBgColor = useColorModeValue("gray.50", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const iconColor = useColorModeValue("gray.600", "gray.400");
+  const headerBgColor = useColorModeValue("white", "gray.800");
+  const subTextColor = useColorModeValue("gray.500", "gray.400");
+  const placeholderColor = useColorModeValue("gray.500", "gray.400");
 
   const defaultOptions = {
     loop: true,
@@ -190,7 +196,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   return (
-    <Flex direction="column" h="100%" position="relative">
+    <Flex direction="column" h="100%" position="relative" bg={bgColor}>
       {selectedChat ? (
         <>
           <Flex 
@@ -198,12 +204,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             justify="space-between" 
             p={4} 
             borderBottom="1px" 
-            borderColor="gray.200"
+            borderColor={borderColor}
             position={{ base: "fixed", md: "static" }}
             top={0}
             left={0}
             right={0}
-            bg={bgColor}
+            bg={headerBgColor}
             zIndex={10}
           >
             <HStack spacing={3}>
@@ -213,6 +219,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 onClick={() => setSelectedChat("")}
                 aria-label="Back"
                 variant="ghost"
+                color={iconColor}
               />
               <Avatar 
                 size="sm" 
@@ -226,12 +233,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }
               />
               <VStack align="start" spacing={0}>
-                <Text fontWeight="bold" fontSize="sm">
+                <Text fontWeight="bold" fontSize="sm" color={textColor}>
                   {!selectedChat.isGroupChat
                     ? getSender(user, selectedChat.users)
                     : selectedChat.chatName}
                 </Text>
-                <Text fontSize="xs" color="gray.500">
+                <Text fontSize="xs" color={subTextColor}>
                   {selectedChat.isGroupChat ? `${selectedChat.users.length} members` : "Online"}
                 </Text>
               </VStack>
@@ -242,12 +249,14 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 aria-label="Voice Call"
                 variant="ghost"
                 size="sm"
+                color={iconColor}
               />
               <IconButton
                 icon={<Video size={18} />}
                 aria-label="Video Call"
                 variant="ghost"
                 size="sm"
+                color={iconColor}
               />
               {selectedChat.isGroupChat ? (
                 <UpdateGroupChatModal
@@ -260,6 +269,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     aria-label="More options"
                     variant="ghost"
                     size="sm"
+                    color={iconColor}
                   />
                 </UpdateGroupChatModal>
               ) : (
@@ -269,62 +279,67 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     aria-label="More options"
                     variant="ghost"
                     size="sm"
+                    color={iconColor}
                   />
                 </ProfileModel>
               )}
             </HStack>
           </Flex>
 
-          <Box 
-            flex={1} 
-            overflowY="auto" 
-            p={3} 
-            pt={{ base: "70px", md: 3 }}
-            bg={chatBgColor} 
-            position="relative"
-          >
-            {loading ? (
-              <Flex justify="center" align="center" h="100%">
-                <Spinner size="xl" />
-              </Flex>
-            ) : (
-              <VStack spacing={3} align="stretch">
-                <ScrollableChat messages={messages} />
-                <div ref={messagesEndRef} />
-              </VStack>
-            )}
-          </Box>
+          <Flex direction="column" pt={{ base: "60px", md: 0 }} h="calc(100vh - 60px)" overflow="hidden">
+            <Box 
+              flex={1} 
+              overflowY="auto" 
+              p={3} 
+              pt={{ base: "70px", md: 3 }}
+              bg={chatBgColor} 
+              position="relative"
+            >
+              {loading ? (
+                <Flex justify="center" align="center" h="100%">
+                  <Spinner size="xl" color={textColor} />
+                </Flex>
+              ) : (
+                <VStack spacing={3} align="stretch">
+                  <ScrollableChat messages={messages} />
+                  <div ref={messagesEndRef} />
+                </VStack>
+              )}
+            </Box>
 
-          <Box p={3} borderTop="1px" borderColor="gray.200">
-            {isTyping && (
-              <Lottie
-                options={defaultOptions}
-                width={70}
-                style={{ marginBottom: 15, marginLeft: 0 }}
-              />
-            )}
-            <Flex>
-              <Input
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={typingHandler}
-                onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                bg={inputBgColor}
-                borderRadius="full"
-                mr={2}
-              />
-              <IconButton
-                colorScheme="blue"
-                aria-label="Send message"
-                icon={<Send size={18} />}
-                onClick={sendMessage}
-                isRound
-              />
-            </Flex>
-          </Box>
+            <Box p={3} borderTop="1px" borderColor={borderColor} bg={headerBgColor}>
+              {isTyping && (
+                <Lottie
+                  options={defaultOptions}
+                  width={70}
+                  style={{ marginBottom: 15, marginLeft: 0 }}
+                />
+              )}
+              <Flex>
+                <Input
+                  placeholder="Type a message..."
+                  value={newMessage}
+                  onChange={typingHandler}
+                  onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                  bg={inputBgColor}
+                  color={textColor}
+                  borderRadius="full"
+                  mr={2}
+                  _placeholder={{ color: placeholderColor }}
+                />
+                <IconButton
+                  colorScheme="blue"
+                  aria-label="Send message"
+                  icon={<Send size={18} />}
+                  onClick={sendMessage}
+                  isRound
+                />
+              </Flex>
+            </Box>
+          </Flex>
         </>
       ) : (
-        <Flex align="center" justify="center" h="100%">
+        <Flex align="center" justify="center" h="100%" bg={bgColor}>
           <Text fontSize="xl" fontWeight="medium" color={textColor}>
             Select a chat to start messaging
           </Text>
@@ -333,3 +348,4 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     </Flex>
   );
 };
+
