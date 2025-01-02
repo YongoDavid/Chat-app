@@ -170,8 +170,8 @@ export const Login = () => {
           h="12"
           variant="outline"
           onClick={() => {
-            setEmail("guest@example.com");
-            setPassword("123456");
+            setEmail("guest01@gmail.com");
+            setPassword("guest01");
           }}
         >
           Use Guest Credentials
