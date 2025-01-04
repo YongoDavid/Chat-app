@@ -48,7 +48,7 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const headerBgColor = useColorModeValue("white", "gray.800");
   const subTextColor = useColorModeValue("gray.500", "gray.400");
   const placeholderColor = useColorModeValue("gray.500", "gray.400");
-  const messageTextColor = useColorModeValue("black", "black");
+  const messageTextColor = useColorModeValue("gray.600", "gay.600");
 
   const defaultOptions = {
     loop: true,
@@ -287,12 +287,12 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             </HStack>
           </Flex>
 
-          <Flex direction="column" pt={{ base: "60px", md: 0 }} h="calc(100vh - 60px)" overflow="hidden">
+          <Flex direction="column" pt={{ base: 0 , md: 0 }} h="calc(100vh - 60px)" overflow="hidden">
             <Box 
               flex={1} 
               overflowY="auto" 
               p={3} 
-              pt={{ base: "70px", md: 3 }}
+              pt={{ base: "20px", md: 3 }}
               bg={chatBgColor} 
               position="relative"
             >
