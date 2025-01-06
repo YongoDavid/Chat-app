@@ -46,3 +46,7 @@ added some changes to the profile section
 
 implimented the colormodetoggle in components and made adjustment to my app.js file
 imported the colormodetoggle into sidedrawer and used the "useColorModeValue"
+
+jan 06 update 
+So far i have tested this application and it is working just fine.
+i just need to add a new feature to notify chats before opening it and that is all.
