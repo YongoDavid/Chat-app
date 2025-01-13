@@ -349,4 +349,3 @@ export const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     </Flex>
   );
 };
-
