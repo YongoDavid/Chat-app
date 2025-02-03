@@ -150,9 +150,9 @@ export function SideDrawer() {
               onClick={onOpen}
               variant="ghost"
             />
-            <Text fontSize="xl" fontWeight="bold" display={{ base: "none", md: "flex" }}>
+            {/* <Text fontSize="xl" fontWeight="bold" display={{ base: "none", md: "flex" }}>
               Chat App
-            </Text>
+            </Text> */}
           </HStack>
 
           <Text fontSize="xl" fontWeight="bold" display={{ base: "flex", md: "none" }}>
