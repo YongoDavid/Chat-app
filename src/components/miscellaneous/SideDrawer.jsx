@@ -150,9 +150,9 @@ export function SideDrawer() {
               onClick={onOpen}
               variant="ghost"
             />
-            {/* <Text fontSize="xl" fontWeight="bold" display={{ base: "none", md: "flex" }}>
+            <Text fontSize="xl" fontWeight="bold" display={{ base: "none", md: "flex" }}>
               Chat App
-            </Text> */}
+            </Text>
           </HStack>
 
           <Text fontSize="xl" fontWeight="bold" display={{ base: "flex", md: "none" }}>
@@ -166,7 +166,7 @@ export function SideDrawer() {
                 aria-label="Notifications"
                 icon={
                   <Box position="relative">
-                    <Bell />
+                    {/* <Bell /> */}
                     <NotificationBadge
                       count={notification.length}
                       effect={Effect.SCALE}
@@ -221,12 +221,12 @@ export function SideDrawer() {
           <DrawerHeader borderBottomWidth="1px">
             <Flex justify="space-between" align="center">
               Search Users
-              <IconButton
+              {/* <IconButton
                 icon={<X />}
                 onClick={onClose}
                 variant="ghost"
                 aria-label="Close drawer"
-              />
+              /> */}
             </Flex>
           </DrawerHeader>
           <DrawerBody>
