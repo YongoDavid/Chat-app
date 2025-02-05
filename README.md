@@ -38,6 +38,3 @@ Single-user as well as group chat can be done by the user</li>
 <!-- 
 ![ChatApp](/src/img1.png)
 ![ChatApp](/src/img2.png) -->
-
-Login , Signup and Homepage desgin update
-<!-- i will be down grading my node.js in other to run old version dependencies  -->

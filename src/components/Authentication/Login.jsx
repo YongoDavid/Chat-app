@@ -99,7 +99,7 @@ export const Login = () => {
           variant="outline"
           leftIcon={<Mail size={18} />}
           onClick={() => {}}
-          _hover={{ bg: "gray.50" }}
+          _hover={{ color: "gray.600" }}
         >
           Continue with Google
         </Button>
